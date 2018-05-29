@@ -1,0 +1,377 @@
+// Incluímos la librería para poder controlar el servo
+#include <Servo.h>
+
+// Declaramos la variable para controlar el servo
+Servo servo1;
+Servo servo2;
+Servo servo3;
+Servo servo4;
+Servo servo5;
+
+
+int srv_base = 60;
+int srv_hombro = 150;
+int srv_codo = 0;
+int srv_muneca = 75;
+int srv_pinza = 162;
+int rutina = 0;
+int input;
+int compu = 0;
+int select_svr = 0;
+
+
+int base_destino = 0;
+int hombro_destino = 0;
+int codo_destino = 0;
+int muneca_destino = 0;
+int pinza_destino = 0;
+
+int base_i = 0;
+int hombro_i = 0;
+int codo_i = 0;
+int muneca_i = 0;
+int pinza_i = 0;
+
+int base_i_mem = 0;
+int hombro_i_mem = 0;
+int codo_i_mem = 0;
+int muneca_i_mem = 0;
+int pinza_i_mem = 0;
+
+int base_mem = 0;
+int hombro_mem = 0;
+int codo_mem = 0;
+int muneca_mem = 0;
+int pinza_mem = 0;
+
+
+int b = 0;
+int h = 0;
+int c = 0;
+int m = 0;
+int p = 0;
+
+void rutina_java(){
+
+  base_mem = base_i;
+  base_i_mem = base_destino;
+
+  base_destino = base_i_mem;
+  while (base_i < base_destino){
+    servo1.write(base_i);
+    base_i = base_i + 5;
+    delay(100);
+  }
+
+  base_i = base_mem;
+  while (base_destino > base_i){
+    servo1.write(srv_base);
+    base_destino = base_destino - 5;
+    delay(100);
+  }
+}
+
+void setup() {
+  // Iniciamos el monitor serie para mostrar el resultado
+  Serial.begin(9600);
+  // Iniciamos el servo para que empiece a trabajar con el pin 9
+  servo1.attach(9);
+  servo2.attach(8);
+  servo3.attach(7);
+  servo4.attach(2);
+  servo5.attach(4);  
+
+}
+
+void postura_inicial(){
+  servo1.write(srv_base);
+  servo2.write(srv_hombro);
+  servo3.write(srv_codo);
+  servo4.write(srv_muneca);
+  servo5.write(srv_pinza);
+  delay(1000);
+}
+
+void servo_pinza(){
+  //angulo inicial 162
+  while(srv_pinza > 90){
+    srv_pinza = srv_pinza - 5;
+    servo5.write(srv_pinza);
+    delay(100);
+  }  
+  delay(1000);
+
+   while(srv_pinza < 162){
+    srv_pinza = srv_pinza + 5;
+    servo5.write(srv_pinza);
+    delay(100);
+  }  
+  delay(1000);
+}
+
+void servo_muneca(){
+  //angulo inicial 75
+  while(srv_muneca > 0){
+    srv_muneca = srv_muneca - 5;
+    servo4.write(srv_muneca);
+    delay(100);
+  }  
+  delay(1000);
+  
+  while(srv_muneca < 180){
+    srv_muneca = srv_muneca + 5;
+    servo4.write(srv_muneca);
+    delay(100);
+  }
+  delay(1000);
+
+  while(srv_muneca > 75){
+    srv_muneca = srv_muneca - 5;
+    servo4.write(srv_muneca);
+    delay(100);
+  }
+  delay(1000);  
+}
+
+void servo_codo(){
+  //angulo inicial 0
+  while(srv_codo < 70){
+    srv_codo = srv_codo + 5;
+    servo3.write(srv_codo);
+    delay(100);
+  }
+  delay(1000);
+  while(srv_codo > 0){
+    srv_codo = srv_codo - 5;
+    servo3.write(srv_codo);
+    delay(100);
+  }
+  delay(1000);
+}
+
+void servo_hombro(){
+  //angulo inicial 150
+  while(srv_hombro > 110){
+    srv_hombro = srv_hombro - 5;
+    servo2.write(srv_hombro);
+    delay(100);
+  }
+  delay(1000);
+  while(srv_hombro < 150){
+    srv_hombro = srv_hombro + 5;
+    servo2.write(srv_hombro);
+    delay(100);
+  }
+  delay(1000);
+}
+
+void servo_base(){
+  while(srv_base > 0){
+    srv_base = srv_base - 5;
+    servo1.write(srv_base);
+    delay(100);
+  }
+  delay(1000);
+  while(srv_base < 160){
+    srv_base = srv_base + 5;
+    servo1.write(srv_base);
+    delay(100);
+  }
+  delay(1000);
+  while(srv_base > 60){
+    srv_base = srv_base - 5;
+    servo1.write(srv_base);
+    delay(100);
+  }
+  delay(1000);
+}
+
+void seleccion_servo(){
+    if (select_svr < 1){
+      if (Serial.available()>0){
+        input=Serial.read();
+        if (input =='0'){
+          compu = 0;
+          select_svr = 0;
+        }
+        if (input =='1'){
+          select_svr = 1;
+          Serial.println("servo 1");
+        }
+        if (input =='2'){
+          select_svr = 2;
+          Serial.println("servo 2");
+        }
+        if (input =='3'){
+          select_svr = 3;
+          Serial.println("servo 3");
+        }                        
+        if (input =='4'){
+          select_svr = 4;
+          Serial.println("servo 4");
+        }
+        if (input =='5'){
+          select_svr = 5;
+          Serial.println("servo 5");
+        }
+        if (input == '6'){
+          select_svr = 6;
+          Serial.println("rutina java");
+          rutina_java();          
+        }        
+      }    
+    } else { mover_servo(); }
+}
+
+void mover_servo(){
+     if (Serial.available()>0){
+        input=Serial.read();
+        if (input == '0'){
+          compu = 0;
+          select_svr = 0;
+        }
+        
+        if (select_svr == 1) {
+          if (input=='1'){
+            srv_base = srv_base + 5;
+            servo1.write(srv_base);
+            Serial.println("servo 1 + 5");
+          }          
+          if (input=='2'){
+            srv_base = srv_base - 5;
+            servo1.write(srv_base);
+            Serial.println("servo 1 - 5");
+          }       
+        }
+        
+        if (select_svr == 2) {
+          if (input=='1'){
+            srv_hombro  = srv_hombro  + 5;
+            servo2.write(srv_hombro);
+            Serial.println("servo 2 + 5");            
+          }          
+          if (input=='2'){
+            srv_hombro  = srv_hombro  - 5;
+            servo2.write(srv_hombro);
+            Serial.println("servo 2 - 5");            
+          }       
+        }
+
+        if (select_svr == 3) {
+          if (input=='1'){
+            srv_codo  = srv_codo  + 5;
+            servo3.write(srv_codo);
+            Serial.println("servo 3 + 5");            
+          }          
+          if (input=='2'){
+            srv_codo  = srv_codo  - 5;
+            servo3.write(srv_codo);
+            Serial.println("servo 3 - 5");            
+          }       
+        }
+
+        if (select_svr == 4) {
+          if (input=='1'){
+            srv_muneca = srv_muneca + 5;
+            servo4.write(srv_muneca);
+            Serial.println("servo 4 + 5");            
+          }          
+          if (input=='2'){
+            srv_muneca = srv_muneca - 5;
+            servo4.write(srv_muneca);
+            Serial.println("servo 4 - 5");            
+          }       
+        }
+
+        if (select_svr == 5) {
+          if (input=='1'){
+            srv_pinza = srv_pinza + 5;
+            servo5.write(srv_pinza);
+            Serial.println("servo 5 + 5");            
+          }          
+          if (input=='2'){
+            srv_pinza = srv_pinza - 5;
+            servo5.write(srv_pinza);
+            Serial.println("servo 5 - 5");
+          }       
+        }                        
+
+      }
+  
+}
+void loop(){
+  postura_inicial();
+  if (select_svr == 6){
+    if (Serial.available()>0){
+      base_i=Serial.read();
+      Serial.print("Dato 1");
+      Serial.println(base_i);
+  }
+  if (Serial.available()>0){
+      base_destino=Serial.read();
+      Serial.print("Dato 2");
+      Serial.println(base_destino);
+  }
+  if (Serial.available()>0){
+      b=Serial.read();
+      Serial.print("Dato 3");
+      Serial.println(b);
+  }
+  
+  }
+  if (compu == 0){
+    if (Serial.available()>0){
+      input=Serial.read();
+      if (input=='1'){
+        compu = 1;
+        postura_inicial();
+      }
+    } else {
+      servo_base();
+    }
+  } else {seleccion_servo();}
+
+  if (compu == 0){
+    if (Serial.available()>0){
+      input=Serial.read();
+      if (input=='1'){
+        compu = 1;
+      }
+    } else {
+      servo_hombro();
+    }
+  } else {seleccion_servo();}
+
+  if (compu == 0){
+    if (Serial.available()>0){
+      input=Serial.read();
+      if (input=='1'){
+        compu = 1;
+      }
+    } else {
+      servo_codo();
+    }
+  } else {seleccion_servo();}
+
+  if (compu == 0){
+    if (Serial.available()>0){
+      input=Serial.read();
+      if (input=='1'){
+        compu = 1;
+      }
+    } else {
+      servo_muneca();
+    }
+  } else {seleccion_servo();}
+
+  if (compu == 0){
+    if (Serial.available()>0){
+      input=Serial.read();
+      if (input=='1'){
+        compu = 1;
+      }
+    } else {
+      servo_pinza(); 
+    }
+  } else {seleccion_servo();}
+}
